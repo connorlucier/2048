@@ -42,6 +42,7 @@ int main() {
 		}
 
 		cout << t;
+		cout << "Score: " << t.score() << "\n";
 		cin.clear();
 
 	}

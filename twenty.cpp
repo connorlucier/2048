@@ -1,6 +1,5 @@
 #include "twenty.h"
 
-
 twenty::twenty() {
 
 	for(int i = 0; i < twenty::board_size; i++) {
@@ -11,6 +10,7 @@ twenty::twenty() {
 	}
 
 	srand(time(NULL));
+	score = 0;
 	generate();
 }
 
@@ -26,9 +26,11 @@ void twenty::generate() {
 	// P(2) = 0.75, P(4) = 0.25
 	if(rand() % 4 == 0) {
 		board[r][c] = 4;
+		score += 4;
 	}
 	else {
 		board[r][c] = 2;
+		score += 2;
 	}
 
 	used[r][c] = true;
@@ -40,6 +42,8 @@ void twenty::combine(const int& r1, const int& c1, const int& r2, const int& c2)
 		board[r1][c1] *= 2;
 		board[r2][c2] = 0;
 		used[r2][c2] = false;
+
+		score += (board[r1][c1] * 2);
 	}
 	else if(!used[r1][c1] && used[r2][c2]) {
 		board[r1][c1] = board[r2][c2];

@@ -16,6 +16,8 @@ private:
 	int board[board_size][board_size];
 	bool used[board_size][board_size];
 
+	int score;
+
 public:
 
 	// CONSTRUCTOR
@@ -35,6 +37,7 @@ public:
 	// CONSTANT FUNCTIONS
 
 	int size() const { return board_size; }
+	int score() const { return score; }
 	bool full() const;
 
 	// FRIEND FUNCTIONS
