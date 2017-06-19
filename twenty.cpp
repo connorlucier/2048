@@ -1,3 +1,6 @@
+//	File: twenty.cpp
+//	Connor Lucier, June 2017
+
 #include "twenty.h"
 
 twenty::twenty() {

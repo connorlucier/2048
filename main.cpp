@@ -1,3 +1,6 @@
+//	File: main.cpp
+//	Connor Lucier, June 2017
+
 #include "twenty.h"
 #include <iostream>
 
