@@ -5,11 +5,24 @@ using namespace std;
 
 int main() {
 
-	twenty t;
+	cout << "  _____    ______   _    _      ______\n";
+	cout << " / __  \\  |  __  | | |  | |    |  __  |\n";
+	cout << "|_/  |  | | |  | | | |  | |    | |__| |\n";
+	cout << "    /  /  | |  | | | |__| |__  |      |\n";
+	cout << "   /  /   | |  | | |____   __| |  __  |\n";
+	cout << "  /  /__  | |__| |      | |    | |__| |\n";
+	cout << " |______| |______|      |_|    |______|\n\n";
 
-	cout << t;
+	cout << "\t~ Press Enter/Return ~\n\n";
 
 	char input;
+	getchar();
+
+	cout << "Instructions: Enter w, a, s, or d to indicate direction. Press Enter/Return to finalize a move.\n";
+
+	twenty t;
+	cout << t;
+
 	while(cin >> input) {
 
 		if(input == 'w') {
