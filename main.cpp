@@ -18,16 +18,15 @@ int main() {
 	cout << " |______| |______|      |_|    |______|\n\n";
 
 	cout << "\t~ Press Enter/Return ~\n\n";
-
-	char input;
 	getchar();
 
 	cout << "Instructions: Enter w, a, s, or d to indicate direction. Press Enter/Return to finalize a move.\nEntering
 			an invalid move will end the game.\n";
 
 	twenty t;
-	cout << t;
+	cout << t << "Score: " << t.score() << "\n";
 
+	char input;
 	while(cin >> input) {
 
 		if(input == 'w') {
@@ -46,8 +45,7 @@ int main() {
 			break;
 		}
 
-		cout << t;
-		cout << "Score: " << t.score() << "\n";
+		cout << t << "Score: " << t.score() << "\nInput: ";
 		cin.clear();
 
 	}
