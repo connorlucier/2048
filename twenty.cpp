@@ -5,10 +5,9 @@
 
 twenty::twenty() {
 
-	for(int i = 0; i < twenty::board_size; i++) {
-		for(int j = 0; j < twenty::board_size; j++) {
-			used[i][j] = false;
-			board[i][j] = 0;
+	for(int r = 0; r < twenty::board_size; r++) {
+		for(int c = 0; c < twenty::board_size; c++) {
+			board[r][c] = 0;
 		}
 	}
 
@@ -21,7 +20,7 @@ void twenty::generate() {
 	int r = rand() % twenty::board_size;
 	int c = rand() % twenty::board_size;
 
-	while(used[r][c]) {
+	while(used(r,c)) {
 		r = rand() % twenty::board_size;
 		c = rand() % twenty::board_size;
 	}
@@ -35,24 +34,19 @@ void twenty::generate() {
 		board[r][c] = 2;
 		game_score += 2;
 	}
-
-	used[r][c] = true;
 }
 
 void twenty::combine(const int& r1, const int& c1, const int& r2, const int& c2) {
 
-	if(used[r1][c1] && board[r1][c1] == board[r2][c2]) {
+	if(used(r1,c1) && board[r1][c1] == board[r2][c2]) {
 		board[r1][c1] *= 2;
 		board[r2][c2] = 0;
-		used[r2][c2] = false;
 
-		game_score += (board[r1][c1] * 2);
+		game_score += board[r1][c1];
 	}
-	else if(!used[r1][c1] && used[r2][c2]) {
+	else if(!used(r1,c1) && used(r2,c2)) {
 		board[r1][c1] = board[r2][c2];
-		used[r1][c1] = true;
 		board[r2][c2] = 0;
-		used[r2][c2] = false;
 	}
 }
 
@@ -71,9 +65,9 @@ void twenty::shift_up() {
 	for(int c = 0; c < twenty::board_size; c++) {
 		for(int r = 0; r < twenty::board_size - 1; r++) {
 
-			if(used[r][c]) {
+			if(used(r,c)) {
 				int temp = r+1;
-				while(temp < twenty::board_size - 1 && !used[temp][c]) {
+				while(temp < twenty::board_size - 1 && !used(temp,c)) {
 					temp++;
 				}
 
@@ -83,14 +77,14 @@ void twenty::shift_up() {
 				}
 			}
 
-			if(!used[r][c] && used[r+1][c]) {
+			if(!used(r,c) && used(r+1,c)) {
 
 				if(r < twenty::board_size - 2 && board[r+1][c] == board[r+2][c]) {
 					combine(r+1,c,r+2,c);
 				}
 
 				int temp = r;
-				while(temp > 0 && !used[temp-1][c]) {
+				while(temp > 0 && !used(temp-1,c)) {
 					temp--;
 				}
 
@@ -112,9 +106,9 @@ void twenty::shift_down() {
 	for(int c = 0; c < twenty::board_size; c++) {
 		for(int r = twenty::board_size - 1; r > 0; r--) {
 
-			if(used[r][c]) {
+			if(used(r,c)) {
 				int temp = r-1;
-				while(temp > 0 && !used[temp][c]) {
+				while(temp > 0 && !used(temp,c)) {
 					temp--;
 				}
 
@@ -124,14 +118,14 @@ void twenty::shift_down() {
 				}
 			}
 
-			if(!used[r][c] && used[r-1][c]) {
+			if(!used(r,c) && used(r-1,c)) {
 				
 				if(r > 1 && board[r-1][c] == board[r-2][c]) {
 					combine(r-1,c,r-2,c);
 				}
 
 				int temp = r;
-				while(temp < twenty::board_size - 1 && !used[temp+1][c]) {
+				while(temp < twenty::board_size - 1 && !used(temp+1,c)) {
 					temp++;
 				}
 
@@ -153,9 +147,9 @@ void twenty::shift_left() {
 	for(int r = 0; r < twenty::board_size; r++) {
 		for(int c = 0; c < twenty::board_size - 1; c++) {
 
-			if(used[r][c]) {
+			if(used(r,c)) {
 				int temp = c+1;
-				while(temp < twenty::board_size - 1 && !used[r][temp]) {
+				while(temp < twenty::board_size - 1 && !used(r,temp)) {
 					temp++;
 				}
 
@@ -165,14 +159,14 @@ void twenty::shift_left() {
 				}
 			}
 
-			if(!used[r][c] && used[r][c+1]) {
+			if(!used(r,c) && used(r,c+1)) {
 				
 				if(c < twenty::board_size - 2 && board[r][c+1] == board[r][c+2]) {
 					combine(r,c+1,r,c+2);
 				}
 
 				int temp = c;
-				while(temp > 0 && !used[r][temp-1]) {
+				while(temp > 0 && !used(r,temp-1)) {
 					temp--;
 				}
 
@@ -194,9 +188,9 @@ void twenty::shift_right() {
 	for(int r = 0; r < twenty::board_size; r++) {
 		for(int c = twenty::board_size - 1; c > 0; c--) {
 
-			if(used[r][c]) {
+			if(used(r,c)) {
 				int temp = c-1;
-				while(temp > 0 && !used[r][temp]) {
+				while(temp > 0 && !used(r,temp)) {
 					temp--;
 				}
 
@@ -206,14 +200,14 @@ void twenty::shift_right() {
 				}
 			}
 
-			if(!used[r][c] && used[r][c-1]) {
+			if(!used(r,c) && used(r,c-1)) {
 				
 				if(c > 1 && board[r][c-1] == board[r][c-2]) {
 					combine(r,c-1,r,c-2);
 				}
 
 				int temp = c;
-				while(temp < twenty::board_size - 1 && !used[r][temp+1]) {
+				while(temp < twenty::board_size - 1 && !used(r,temp+1)) {
 					temp++;
 				}
 
@@ -232,7 +226,7 @@ bool twenty::full() const {
 	
 	for(int r = 0; r < twenty::board_size; r++) {
 		for(int c = 0; c < twenty::board_size; c++) {
-			if(!used[r][c]) {
+			if(!used(r,c)) {
 				return false;
 			}
 		}
@@ -256,7 +250,7 @@ std::ostream& operator<<(std::ostream& outs, const twenty& t) {
 		outs << "| ";
 		for(int c = 0; c < twenty::board_size; c++) {
 
-			if(t.used[r][c]) {
+			if(t.used(r,c)) {
 				outs << t.board[r][c] << " | ";
 			}
 			else {

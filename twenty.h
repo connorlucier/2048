@@ -1,6 +1,19 @@
 //	File: twenty.h
 //	Connor Lucier, June 2017
 
+/*	Class implemented: twenty
+*	
+*	Private member variables:
+*
+*		1) static const int board_size
+*			- Defines board size. Can be adjusted for bigger/smaller board.
+*		2) int[][] board
+*			- Size: board_size * board_size
+*			- Contains actual values in each space of the board.
+*			- Entries initialized to 0.
+*
+*/
+
 #ifndef TWENTY_H
 #define TWENTY_H
 
@@ -17,8 +30,6 @@ private:
 	static const int board_size = 4;
 
 	int board[board_size][board_size];
-	bool used[board_size][board_size];
-
 	int game_score;
 
 public:
@@ -39,9 +50,11 @@ public:
 
 	// CONSTANT FUNCTIONS
 
-	int size() const { return board_size; }
 	int score() const { return game_score; }
+	int size() const { return board_size; }
+	
 	bool full() const;
+	bool used(const int& r, const int& c) const { return (board[r][c] != 0); }
 
 	// FRIEND FUNCTIONS
 

@@ -20,11 +20,11 @@ int main() {
 	cout << "\t~ Press Enter/Return ~\n\n";
 	getchar();
 
-	cout << "Instructions: Enter w, a, s, or d to indicate direction. Press Enter/Return to finalize a move.\nEntering
-			an invalid move will end the game.\n";
+	cout << "Instructions: Enter w, a, s, or d to indicate direction. Press Enter/Return to finalize a move.\nEntering an invalid move will end the game.\n";
 
 	twenty t;
-	cout << t << "Score: " << t.score() << "\n";
+	cout << t;
+	cout << "Score: " << t.score() << "\n";
 
 	char input;
 	while(cin >> input) {
