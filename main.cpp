@@ -1,8 +1,9 @@
 //	File: main.cpp
 //	Connor Lucier, June 2017
 
-#include "twenty.h"
 #include <iostream>
+#include <stdio.h>
+#include "twenty.h"
 
 using namespace std;
 
@@ -21,7 +22,8 @@ int main() {
 	char input;
 	getchar();
 
-	cout << "Instructions: Enter w, a, s, or d to indicate direction. Press Enter/Return to finalize a move.\n";
+	cout << "Instructions: Enter w, a, s, or d to indicate direction. Press Enter/Return to finalize a move.\nEntering
+			an invalid move will end the game.\n";
 
 	twenty t;
 	cout << t;
