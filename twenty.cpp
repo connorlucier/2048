@@ -37,26 +37,39 @@ void twenty::generate() {
 	}
 }
 
-void twenty::combine(const int& r1, const int& c1, const int& r2, const int& c2) {
+bool twenty::combine(const int& r1, const int& c1, const int& r2, const int& c2) {
 
 	assert(r1 >= 0 && c1 >= 0 && r2 >= 0 && c2 >= 0);
 	assert(r1 < board_size && c1 < board_size && r2 < board_size && c2 < board_size);
+	bool result = false;
+
+	if(r1 == r2 && c1 == c2) {
+		return result;
+	}
 
 	if(used(r1,c1) && board[r1][c1] == board[r2][c2]) {
 		board[r1][c1] *= 2;
 		board[r2][c2] = 0;
 
 		game_score += board[r1][c1];
+		result = true;
 	}
 	else if(!used(r1,c1) && used(r2,c2)) {
 		board[r1][c1] = board[r2][c2];
 		board[r2][c2] = 0;
+		result = true;
 	}
+
+	return result;
 }
 
 // TODO: Handle weird shift cases.
-	//	1) 4 of same number in same row/col.
-	//	2) 2 non-adjacent same numbers need to be combined & moved.
+	//	1) Four of same number in same row/col.
+	//			i.e. [2][ ][ ][ ] -- shift_up() -->	[4][ ][ ][ ] & new num
+	//				 [2][ ][ ][ ]					[4][ ][ ][ ] generated
+	//				 [2][ ][ ][ ]					[ ][ ][ ][ ]
+	//				 [2][ ][ ][ ]					[ ][ ][ ][ ]
+	//	2) Two nonadjacent numbers need to be combined then shifted.
 	//			i.e. [ ][ ][ ][ ] -- shift_up() -->	[4][ ][ ][ ] & new num
 	//				 [2][ ][ ][ ]					[ ][ ][ ][ ] generated
 	//				 [ ][ ][ ][ ]					[ ][ ][ ][ ]
@@ -89,12 +102,14 @@ void twenty::combine(const int& r1, const int& c1, const int& r2, const int& c2)
 *		Loop through columns {
 *			Loop through rows {
 *				
-*				If the current space is used, look down the column and find the next non-zero number.
-*					- If this number has the same value as the current space, combine them.
-*				
-*				Otherwise, look to shift the number upward.
+*				If the current space is used, look downward and try to find the next used space.
+*					- If this space is valid has the same value as the current space, combine them.
+*					- Otherwise, move the next non-zero value up as far as possible.
+*
 *			}
 *		}
+*
+*		If the board changed at all, generate a new number.
 *
 */
 
@@ -105,34 +120,22 @@ void twenty::shift_up() {
 
 	for(int c = 0; c < twenty::board_size; c++) {
 		for(int r = 0; r < twenty::board_size - 1; r++) {
+				
+			int cur = r+1;
+			while(cur < twenty::board_size && !used(cur,c)) {
+				cur++;
+			}
+			
+			if(cur < twenty::board_size) {
 
-			if(used(r,c)) {
-				int temp = r+1;
-				while(temp < twenty::board_size - 1 && !used(temp,c)) {
-					temp++;
+				if(!used(r,c) || board[r][c] == board[cur][c]) {
+					changed = combine(r,c,cur,c);
 				}
-
-				if(board[r][c] == board[temp][c]) {
-					combine(r,c,temp,c);
-					changed = true;
+				else {
+					changed = combine(r+1,c,cur,c);
 				}
 			}
-
-			else if(used(r+1,c)) {
-
-				if(r < twenty::board_size - 2 && board[r+1][c] == board[r+2][c]) {
-					combine(r+1,c,r+2,c);
-				}
-
-				int temp = r;
-				while(temp > 0 && !used(temp-1,c)) {
-					temp--;
-				}
-
-				combine(temp,c,r+1,c);
-				changed = true;
-			}
-		}
+		}	
 	}
 
 	if(changed) {
@@ -146,34 +149,22 @@ void twenty::shift_down() {
 
 	for(int c = 0; c < twenty::board_size; c++) {
 		for(int r = twenty::board_size - 1; r > 0; r--) {
-
-			if(used(r,c)) {
-				int temp = r-1;
-				while(temp > 0 && !used(temp,c)) {
-					temp--;
-				}
-
-				if(board[r][c] == board[temp][c]) {
-					combine(r,c,temp,c);
-					changed = true;
-				}
-			}
-
-			else if(used(r-1,c)) {
 				
-				if(r > 1 && board[r-1][c] == board[r-2][c]) {
-					combine(r-1,c,r-2,c);
-				}
-
-				int temp = r;
-				while(temp < twenty::board_size - 1 && !used(temp+1,c)) {
-					temp++;
-				}
-
-				combine(temp,c,r-1,c);
-				changed = true;
+			int cur = r-1;
+			while(cur >= 0 && !used(cur,c)) {
+				cur--;
 			}
-		}
+			
+			if(cur >= 0) {
+				
+				if(!used(r,c) || board[r][c] == board[cur][c]) {
+					changed = combine(r,c,cur,c);
+				}
+				else {
+					changed = combine(r-1,c,cur,c);
+				}
+			}
+		}	
 	}
 
 	if(changed) {
@@ -187,34 +178,22 @@ void twenty::shift_left() {
 
 	for(int r = 0; r < twenty::board_size; r++) {
 		for(int c = 0; c < twenty::board_size - 1; c++) {
-
-			if(used(r,c)) {
-				int temp = c+1;
-				while(temp < twenty::board_size - 1 && !used(r,temp)) {
-					temp++;
-				}
-
-				if(board[r][c] == board[r][temp]) {
-					combine(r,c,r,temp);
-					changed = true;
-				}
-			}
-
-			else if(used(r,c+1)) {
 				
-				if(c < twenty::board_size - 2 && board[r][c+1] == board[r][c+2]) {
-					combine(r,c+1,r,c+2);
-				}
-
-				int temp = c;
-				while(temp > 0 && !used(r,temp-1)) {
-					temp--;
-				}
-
-				combine(r,temp,r,c+1);
-				changed = true;
+			int cur = c+1;
+			while(cur < twenty::board_size && !used(r,cur)) {
+				cur++;
 			}
-		}
+			
+			if(cur < twenty::board_size) {
+
+				if(!used(r,c) || board[r][c] == board[r][cur]) {
+					changed = combine(r,c,r,cur);
+				}
+				else {
+					changed = combine(r,c+1,r,cur);
+				}
+			}
+		}	
 	}
 
 	if(changed) {
@@ -228,34 +207,22 @@ void twenty::shift_right() {
 
 	for(int r = 0; r < twenty::board_size; r++) {
 		for(int c = twenty::board_size - 1; c > 0; c--) {
-
-			if(used(r,c)) {
-				int temp = c-1;
-				while(temp > 0 && !used(r,temp)) {
-					temp--;
-				}
-
-				if(board[r][c] == board[r][temp]) {
-					combine(r,c,r,temp);
-					changed = true;
-				}
-			}
-
-			else if(used(r,c-1)) {
 				
-				if(c > 1 && board[r][c-1] == board[r][c-2]) {
-					combine(r,c-1,r,c-2);
-				}
-
-				int temp = c;
-				while(temp < twenty::board_size - 1 && !used(r,temp+1)) {
-					temp++;
-				}
-
-				combine(r,temp,r,c-1);
-				changed = true;
+			int cur = c-1;
+			while(cur >= 0 && !used(r,cur)) {
+				cur--;
 			}
-		}
+			
+			if(cur >= 0) {
+				
+				if(!used(r,c) || board[r][c] == board[r][cur]) {
+					changed = combine(r,c,r,cur);
+				}
+				else {
+					changed = combine(r,c-1,r,cur);
+				}
+			}
+		}	
 	}
 
 	if(changed) {
@@ -274,6 +241,14 @@ bool twenty::full() const {
 	}
 
 	return true;
+}
+
+bool twenty::used(const int& r, const int& c) const {
+	
+	assert(r >= 0 && c >= 0);
+	assert(r < twenty::board_size && c < twenty::board_size);
+
+	return (board[r][c] > 0);
 }
 
 std::ostream& operator<<(std::ostream& outs, const twenty& t) {

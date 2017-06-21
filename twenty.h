@@ -27,11 +27,12 @@
 *				-> Generates a new number in an unused spot on the board.
 *				-> Increases game_score by the value of this new number.
 *			
-*			- void combine(r1,c1,r2,c2)
-*			  PRECONDITION: all passed row/column values are positive and less than board_size.
-*				-> If the numbers in board[r1][c1] and board[r2][c2] are greater than 0 and equal, combine them and add the result to game_score.
-*				-> Otherwise, copy board[r2][c2] to board[r1][c1]
-*				-> In either case, board[r2][c2] is reset to 0.
+*			- bool combine(r1,c1,r2,c2)
+*			  PRECONDITION: all passed row/column values are nonnegative and less than board_size.
+*				-> If the values in board[r1][c1] and board[r2][c2] are positive and equal, combine them and add the result to game_score.
+*				-> Otherwise, if board[r1][c1] is unused and board[r2][c2] is used, copy board[r2][c2] to board[r1][c1].
+*					--> In either of these cases, board[r2][c2] is reset to 0.
+*				-> Returns true if a change is made to the board, and false otherwise.
 *
 *			- void shift_up()
 *				-> Shifts and combines numbers upward. If the board changes in this process, a new number is generated.
@@ -56,6 +57,7 @@
 *				-> Returns true if all spaces in board[][] are used, and false otherwise.
 *
 *			- bool used(r,c)
+*			  PRECONDITION: r and c are both nonnegative and less than board_size.
 *				-> Returns true if the value in board[r][c] is greater than 0.
 *
 *		OPERATOR OVERLOADS:
@@ -95,12 +97,12 @@ public:
 	// MODIFIER FUNCTIONS
 
 	void generate();
-	void combine(const int& r1, const int& c1, const int& r2, const int& c2);
-
 	void shift_up();
 	void shift_down();
 	void shift_left();
 	void shift_right();
+
+	bool combine(const int& r1, const int& c1, const int& r2, const int& c2);
 
 	// CONSTANT FUNCTIONS
 
@@ -108,7 +110,7 @@ public:
 	int size() const { return board_size; }
 	
 	bool full() const;
-	bool used(const int& r, const int& c) const { return (board[r][c] > 0); }
+	bool used(const int& r, const int& c) const;
 
 	// FRIEND FUNCTIONS
 
