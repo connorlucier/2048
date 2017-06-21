@@ -2,6 +2,7 @@
 //	Connor Lucier, June 2017
 
 #include "twenty.h"
+#include <cassert>
 
 twenty::twenty() {
 
@@ -38,6 +39,9 @@ void twenty::generate() {
 
 void twenty::combine(const int& r1, const int& c1, const int& r2, const int& c2) {
 
+	assert(r1 >= 0 && c1 >= 0 && r2 >= 0 && c2 >= 0);
+	assert(r1 < board_size && c1 < board_size && r2 < board_size && c2 < board_size);
+
 	if(used(r1,c1) && board[r1][c1] == board[r2][c2]) {
 		board[r1][c1] *= 2;
 		board[r2][c2] = 0;
@@ -50,13 +54,50 @@ void twenty::combine(const int& r1, const int& c1, const int& r2, const int& c2)
 	}
 }
 
-// TODO: Handle weird cases.
+// TODO: Handle weird shift cases.
 	//	1) 4 of same number in same row/col.
 	//	2) 2 non-adjacent same numbers need to be combined & moved.
 	//			i.e. [ ][ ][ ][ ] -- shift_up() -->	[4][ ][ ][ ] & new num
 	//				 [2][ ][ ][ ]					[ ][ ][ ][ ] generated
 	//				 [ ][ ][ ][ ]					[ ][ ][ ][ ]
 	//				 [2][ ][ ][ ]					[ ][ ][ ][ ]
+
+
+/*	NOTES ON SHIFT OPERATIONS LOGIC:
+*		All shift_x() functions follow roughly the same logic. The only differences lie in the
+*	order and direction of combinations, listed below.
+*
+*		- shift_up():
+*			-> Loop through columns in any order; picked left to right for simplicity.
+*				--> Within each column, loop through rows incrementing from zero.
+*
+*		- shift_down():
+*			-> Loop through columns in any order; picked left to right for simplicity.
+*				--> Within each column, loop through rows, decrementing from board_size - 1.
+*
+*		- shift_left():
+*			-> Same as shift_up(), except rows and columns are switched. Outer loop for rows, inner loop for columns.
+*
+*		- shift_right():
+*			-> Same as shift_down(), except rows and columns are switched. Outer loop for rows, inner loop for columns.
+*
+*
+*	>>> NOTE: Using shift_up() to explain the general shift functionality simply. <<<
+*	
+*		SHIFT LOGIC:
+*		
+*		Loop through columns {
+*			Loop through rows {
+*				
+*				If the current space is used, look down the column and find the next non-zero number.
+*					- If this number has the same value as the current space, combine them.
+*				
+*				Otherwise, look to shift the number upward.
+*			}
+*		}
+*
+*/
+
 
 void twenty::shift_up() {
 
@@ -77,7 +118,7 @@ void twenty::shift_up() {
 				}
 			}
 
-			if(!used(r,c) && used(r+1,c)) {
+			else if(used(r+1,c)) {
 
 				if(r < twenty::board_size - 2 && board[r+1][c] == board[r+2][c]) {
 					combine(r+1,c,r+2,c);
@@ -118,7 +159,7 @@ void twenty::shift_down() {
 				}
 			}
 
-			if(!used(r,c) && used(r-1,c)) {
+			else if(used(r-1,c)) {
 				
 				if(r > 1 && board[r-1][c] == board[r-2][c]) {
 					combine(r-1,c,r-2,c);
@@ -159,7 +200,7 @@ void twenty::shift_left() {
 				}
 			}
 
-			if(!used(r,c) && used(r,c+1)) {
+			else if(used(r,c+1)) {
 				
 				if(c < twenty::board_size - 2 && board[r][c+1] == board[r][c+2]) {
 					combine(r,c+1,r,c+2);
@@ -200,7 +241,7 @@ void twenty::shift_right() {
 				}
 			}
 
-			if(!used(r,c) && used(r,c-1)) {
+			else if(used(r,c-1)) {
 				
 				if(c > 1 && board[r][c-1] == board[r][c-2]) {
 					combine(r,c-1,r,c-2);
