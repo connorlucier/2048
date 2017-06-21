@@ -63,79 +63,49 @@ bool twenty::combine(const int& r1, const int& c1, const int& r2, const int& c2)
 	return result;
 }
 
-// TODO: Handle weird shift cases.
-	//	1) Four of same number in same row/col.
-	//			i.e. [2][ ][ ][ ] -- shift_up() -->	[4][ ][ ][ ] & new num
-	//				 [2][ ][ ][ ]					[4][ ][ ][ ] generated
-	//				 [2][ ][ ][ ]					[ ][ ][ ][ ]
-	//				 [2][ ][ ][ ]					[ ][ ][ ][ ]
-	//	2) Two nonadjacent numbers need to be combined then shifted.
-	//			i.e. [ ][ ][ ][ ] -- shift_up() -->	[4][ ][ ][ ] & new num
-	//				 [2][ ][ ][ ]					[ ][ ][ ][ ] generated
-	//				 [ ][ ][ ][ ]					[ ][ ][ ][ ]
-	//				 [2][ ][ ][ ]					[ ][ ][ ][ ]
-
-
-/*	NOTES ON SHIFT OPERATIONS LOGIC:
-*		All shift_x() functions follow roughly the same logic. The only differences lie in the
-*	order and direction of combinations, listed below.
-*
-*		- shift_up():
-*			-> Loop through columns in any order; picked left to right for simplicity.
-*				--> Within each column, loop through rows incrementing from zero.
-*
-*		- shift_down():
-*			-> Loop through columns in any order; picked left to right for simplicity.
-*				--> Within each column, loop through rows, decrementing from board_size - 1.
-*
-*		- shift_left():
-*			-> Same as shift_up(), except rows and columns are switched. Outer loop for rows, inner loop for columns.
-*
-*		- shift_right():
-*			-> Same as shift_down(), except rows and columns are switched. Outer loop for rows, inner loop for columns.
-*
-*
-*	>>> NOTE: Using shift_up() to explain the general shift functionality simply. <<<
-*	
-*		SHIFT LOGIC:
-*		
-*		Loop through columns {
-*			Loop through rows {
-*				
-*				If the current space is used, look downward and try to find the next used space.
-*					- If this space is valid has the same value as the current space, combine them.
-*					- Otherwise, move the next non-zero value up as far as possible.
-*
-*			}
-*		}
-*
-*		If the board changed at all, generate a new number.
-*
-*/
-
-
 void twenty::shift_up() {
 
-	bool changed = false;
+	bool temp = false, changed = false;
 
 	for(int c = 0; c < twenty::board_size; c++) {
-		for(int r = 0; r < twenty::board_size - 1; r++) {
-				
+		for(int r = 0; r < twenty::board_size; r++) {
+
 			int cur = r+1;
 			while(cur < twenty::board_size && !used(cur,c)) {
 				cur++;
 			}
 			
-			if(cur < twenty::board_size) {
+			if(cur < twenty::board_size && used(r,c)) {
+				temp = combine(r,c,cur,c);
 
-				if(!used(r,c) || board[r][c] == board[cur][c]) {
-					changed = combine(r,c,cur,c);
-				}
-				else {
-					changed = combine(r+1,c,cur,c);
+				if(temp && !changed) {
+					changed = true;
 				}
 			}
-		}	
+
+			if(used(r,c)) {
+
+				int cur = r-1;
+				while(cur >= 0 && !used(cur,c)) {
+					cur--;
+				}
+
+				if(cur >= 0 && !used(cur,c)) {
+					temp = combine(cur,c,r,c);
+					
+					if(temp && !changed) {
+						changed = true;
+					}
+				}
+				else {
+					temp = combine(cur+1,c,r,c);
+					
+					if(temp && !changed) {
+						changed = true;
+					}
+				}
+			}
+		}
 	}
 
 	if(changed) {
@@ -145,26 +115,47 @@ void twenty::shift_up() {
 
 void twenty::shift_down() {
 
-	bool changed = false;
+	bool temp = false, changed = false;
 
 	for(int c = 0; c < twenty::board_size; c++) {
-		for(int r = twenty::board_size - 1; r > 0; r--) {
-				
+		for(int r = twenty::board_size - 1; r >= 0; r--) {
+
 			int cur = r-1;
 			while(cur >= 0 && !used(cur,c)) {
 				cur--;
 			}
 			
-			if(cur >= 0) {
-				
-				if(!used(r,c) || board[r][c] == board[cur][c]) {
-					changed = combine(r,c,cur,c);
-				}
-				else {
-					changed = combine(r-1,c,cur,c);
+			if(cur >= 0 && used(r,c)) {
+				temp = combine(r,c,cur,c);
+
+				if(temp && !changed) {
+					changed = true;
 				}
 			}
-		}	
+
+			if(used(r,c)) {
+
+				int cur = r+1;
+				while(cur < twenty::board_size && !used(cur,c)) {
+					cur++;
+				}
+
+				if(cur < twenty::board_size && !used(cur,c)) {
+					temp = combine(cur,c,r,c);
+
+					if(temp && !changed) {
+						changed = true;
+					}
+				}
+				else {
+					temp = combine(cur-1,c,r,c);
+
+					if(temp && !changed) {
+						changed = true;
+					}
+				}
+			}
+		}
 	}
 
 	if(changed) {
@@ -174,26 +165,47 @@ void twenty::shift_down() {
 
 void twenty::shift_left() {
 
-	bool changed = false;
+	bool temp = false, changed = false;
 
 	for(int r = 0; r < twenty::board_size; r++) {
-		for(int c = 0; c < twenty::board_size - 1; c++) {
-				
+		for(int c = 0; c < twenty::board_size; c++) {
+
 			int cur = c+1;
 			while(cur < twenty::board_size && !used(r,cur)) {
 				cur++;
 			}
 			
-			if(cur < twenty::board_size) {
+			if(cur < twenty::board_size && used(r,c)) {
+				temp = combine(r,c,r,cur);
 
-				if(!used(r,c) || board[r][c] == board[r][cur]) {
-					changed = combine(r,c,r,cur);
-				}
-				else {
-					changed = combine(r,c+1,r,cur);
+				if(temp && !changed) {
+					changed = true;
 				}
 			}
-		}	
+
+			if(used(r,c)) {
+
+				int cur = c-1;
+				while(cur >= 0 && !used(r,cur)) {
+					cur--;
+				}
+
+				if(cur >= 0 && !used(r,cur)) {
+					temp = combine(r,cur,r,c);
+
+					if(temp && !changed) {
+						changed = true;
+					}
+				}
+				else {
+					temp = combine(r,cur+1,r,c);
+
+					if(temp && !changed) {
+						changed = true;
+					}
+				}
+			}
+		}
 	}
 
 	if(changed) {
@@ -203,26 +215,47 @@ void twenty::shift_left() {
 
 void twenty::shift_right() {
 
-	bool changed = false;
+	bool temp = false, changed = false;
 
 	for(int r = 0; r < twenty::board_size; r++) {
-		for(int c = twenty::board_size - 1; c > 0; c--) {
-				
+		for(int c = twenty::board_size - 1; c >= 0; c--) {
+
 			int cur = c-1;
 			while(cur >= 0 && !used(r,cur)) {
 				cur--;
 			}
 			
-			if(cur >= 0) {
-				
-				if(!used(r,c) || board[r][c] == board[r][cur]) {
-					changed = combine(r,c,r,cur);
-				}
-				else {
-					changed = combine(r,c-1,r,cur);
+			if(cur >= 0 && used(r,c)) {
+				temp = combine(r,c,r,cur);
+
+				if(temp && !changed) {
+					changed = true;
 				}
 			}
-		}	
+
+			if(used(r,c)) {
+
+				int cur = c+1;
+				while(cur < twenty::board_size && !used(r,cur)) {
+					cur++;
+				}
+
+				if(cur < twenty::board_size && !used(r,cur)) {
+					temp = combine(r,cur,r,c);
+
+					if(temp && !changed) {
+						changed = true;
+					}
+				}
+				else {
+					temp = combine(r,cur-1,r,c);
+					
+					if(temp && !changed) {
+						changed = true;
+					}
+				}
+			}
+		}
 	}
 
 	if(changed) {
